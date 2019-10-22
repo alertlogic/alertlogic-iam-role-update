@@ -1,4 +1,7 @@
-#!/usr/bin/env python2.7
+#######################################
+# Alert Logic IAM Policy Management
+#
+# Author: Justin Early <jearly@alertlogic.com>
 
 import sys
 import json
@@ -330,7 +333,7 @@ def create_policy(policy_name, minimal):
     else:
         response = iam.create_policy(
             PolicyName=policy_name,
-            PolicyDocument=json.dumps(minimal_policy)
+            PolicyDocument=json.dumps(full_policy)
         )
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
                 print("Successfully created IAM Policy: {}".format(response['Policy']['Arn']))
@@ -397,7 +400,7 @@ def yes_or_no(question):
 
 def main(_argv):
     parser = argparse.ArgumentParser(
-        description='IAM Policy Management for SIEMless Threat upgrade'
+        description='Alert Logic IAM Policy Management'
     )
     parser.add_argument(
         '--policy-name',
@@ -455,15 +458,15 @@ def main(_argv):
     if args.account:
         account = args.account
     if args.create:
-        yes_or_no("Are you sure you want to create policy {}?".format(policy_name))
+        yes_or_no("Are you sure you want to create IAM Policy {}?".format(policy_name))
         create_policy(policy_name, minimal)
     if args.update:
-        yes_or_no("Are you sure you want to update policy {}?".format(policy_name))
+        yes_or_no("Are you sure you want to update IAM Policy {}?".format(policy_name))
         update_policy(account, policy_name, minimal)
     if args.list_versions:
         list_policy_versions(account, policy_name)
     if args.delete_version:
-        yes_or_no("Are you sure you want to delete policy {} version {}?".format(policy_name, args.delete_version))
+        yes_or_no("Are you sure you want to delete IAM Policy {} version {}?".format(policy_name, args.delete_version))
         delete_policy_version(account, policy_name, args.delete_version)
 
 if __name__ == '__main__':
