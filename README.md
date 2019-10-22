@@ -93,7 +93,7 @@ python manage_policy.py --policy-name alertlogic-policy --create --minimal
 Minimal permission option Allows you to maintain full control over the changes in your deployment, and requires you to perform any necessary actions manually.
 Continue applying minimal permissions policy? (y/n): y
 Are you sure you want to create policy alertlogic-policy? (y/n): y
-Successfully created IAM Policy: alertlogic-policy
+Successfully created IAM Policy: arn:aws:iam::1234567890:policy/alertlogic-policy
 ```
 
 Create full permission policy:
@@ -102,21 +102,21 @@ python manage_policy.py --policy-name alertlogic-policy --create
 Full permission option allows Alert Logic to make all the necessary changes to your AWS account.
 Continue applying full permissions policy? (y/n): y
 Are you sure you want to create policy alertlogic-policy? (y/n): y
-Successfully created IAM Policy: alertlogic-policy
+Successfully created IAM Policy: arn:aws:iam::1234567890:policy/alertlogic-policy
 ```
 
 Update existing policy to minimal permission:
 ```
 python manage_policy.py --policy-name alertlogic-policy --update --account 1234567890 --minimal
 Are you sure you want to update IAM Policy: alertlogic-policy? (y/n): y
-Successfully updated IAM Policy: alertlogic-policy
+Successfully updated IAM Policy: arn:aws:iam::1234567890:policy/alertlogic-policy
 ```
 
 Update existing policy to full permission:
 ```
 python manage_policy.py --policy-name alertlogic-policy --update --account 1234567890
 Are you sure you want to update IAM Policy: alertlogic-policy? (y/n): y
-Successfully updated IAM Policy: alertlogic-policy
+Successfully updated IAM Policy: arn:aws:iam::1234567890:policy/alertlogic-policy
 ```
 
 List policy versions:
