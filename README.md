@@ -1,68 +1,16 @@
 # Alert Logic IAM Management
 
-These scripts provide a programatic method to create, update, or delete your Alert Logic IAM roles in order to deploy Alert Logic products into your AWS account.
-
-## IAM Role Management Utility
-
-### Usage:
-
-Help:
-```
-python manage_role.py --help
-usage: manage_role.py [-h] --role-name ROLE_NAME
-                          [--access-type {log,us,uk}]
-                          [--external-id EXTERNAL_ID]
-                          [--policy-arn POLICY_ARN] [--create] [--delete]
-                          [--detach-policy] [--attach-policy]
-
-Alert Logic IAM Role Management
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --role-name ROLE_NAME IAM role name to create
-  --access-type {log,us,uk} Options: ['log'(CloudTrail and S3 log collection only), 'us', 'uk']
-  --external-id EXTERNAL_ID Alert Logic Customer ID. To find your Customer ID, in
-                        the Alert Logic console, click Settings > Support Information.
-  --policy-arn POLICY_ARN Alert Logic IAM Policy previously created.
-  --create              Create IAM Role
-  --delete              Delete IAM Role
-  --detach-policy       Detach IAM Policy from role
-  --attach-policy       Attach IAM Policy from role
-```
-
-Create role and attach existing policy:
-```
-python manage_role.py --role-name alertlogic-role  --external-id 1234567890 --policy-arn arn:aws:iam::123456789012345:policy/alertlogic-policy --create --access-type us
-Alert Logic Customer ID(External ID): 1234567890
-IAM Role to be created: alertlogic-role
-IAM Policy Arn to be attached: arn:aws:iam::123456789012345:policy/alertlogic-policy
-Alert Logic account for cross-account access: us: 123456789012345
-Create new IAM Role alertlogic-role and apply policy: arn:aws:iam::123456789012345:policy/alertlogic-policy? (y/n): y
-Successfully created IAM Role: alertlogic-role
-```
-
-Delete role:
-```
-python manage_role.py --role-name alertlogic-role --delete
-Are you sure you want to delete role alertlogic-role? (y/n): y
-Successfully deleted IAM Role: alertlogic-role
-```
-
-Attach policy to existing role:
-```
-python manage_role.py --role-name alertlogic-role --policy-arn arn:aws:iam::1234567890:policy/alertlogic-policy --attach-policy
-Are you sure you want to attach policy arn:aws:iam::1234567890:policy/alertlogic-policy to IAM Role: alertlogic-role? (y/n): y
-Successfully attached arn:aws:iam::1234567890:policy/alertlogic-policy to IAM Role: alertlogic-role
-```
-
-Detach policy to existing role:
-```
-python manage_role.py --role-name alertlogic-role --policy-arn arn:aws:iam::1234567890:policy/alertlogic-policy --detach-policy
-Are you sure you want to detach policy arn:aws:iam::1234567890:policy/alertlogic-policy from IAM Role: alertlogic-role? (y/n): y
-Successfully detached arn:aws:iam::1234567890:policy/alertlogic-policy from IAM Role: alertlogic-role
-```
+These scripts provide a programatic method to create, update, or delete your Alert Logic IAM roles in order to deploy Alert Logic products into your AWS account. In order to use these scripts, you must have the requirements listed below installed. You must also setup your aws credentials and config files as described [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html).
 
 ## IAM Policy Management Utility
+
+**Requirements**
+
+Python >= 2.6
+
+boto3
+
+argparse
 
 ### Usage:
 
@@ -131,6 +79,66 @@ Delete policy by version:
 python manage_iam.py --policy-name alertlogic-policy --account 1234567890 --delete-version v4
 Are you sure you want to delete policy alertlogic-policy version v4? (y/n): y
 Successfully deleted IAM Policy version: v4
+```
+
+## IAM Role Management Utility
+
+### Usage:
+
+Help:
+```
+python manage_role.py --help
+usage: manage_role.py [-h] --role-name ROLE_NAME
+                          [--access-type {log,us,uk}]
+                          [--external-id EXTERNAL_ID]
+                          [--policy-arn POLICY_ARN] [--create] [--delete]
+                          [--detach-policy] [--attach-policy]
+
+Alert Logic IAM Role Management
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --role-name ROLE_NAME IAM role name to create
+  --access-type {log,us,uk} Options: ['log'(CloudTrail and S3 log collection only), 'us', 'uk']
+  --external-id EXTERNAL_ID Alert Logic Customer ID. To find your Customer ID, in
+                        the Alert Logic console, click Settings > Support Information.
+  --policy-arn POLICY_ARN Alert Logic IAM Policy previously created.
+  --create              Create IAM Role
+  --delete              Delete IAM Role
+  --detach-policy       Detach IAM Policy from role
+  --attach-policy       Attach IAM Policy from role
+```
+
+Create role and attach existing policy:
+```
+python manage_role.py --role-name alertlogic-role  --external-id 1234567890 --policy-arn arn:aws:iam::123456789012345:policy/alertlogic-policy --create --access-type us
+Alert Logic Customer ID(External ID): 1234567890
+IAM Role to be created: alertlogic-role
+IAM Policy Arn to be attached: arn:aws:iam::123456789012345:policy/alertlogic-policy
+Alert Logic account for cross-account access: us: 123456789012345
+Create new IAM Role alertlogic-role and apply policy: arn:aws:iam::123456789012345:policy/alertlogic-policy? (y/n): y
+Successfully created IAM Role: alertlogic-role
+```
+
+Delete role:
+```
+python manage_role.py --role-name alertlogic-role --delete
+Are you sure you want to delete role alertlogic-role? (y/n): y
+Successfully deleted IAM Role: alertlogic-role
+```
+
+Attach policy to existing role:
+```
+python manage_role.py --role-name alertlogic-role --policy-arn arn:aws:iam::1234567890:policy/alertlogic-policy --attach-policy
+Are you sure you want to attach policy arn:aws:iam::1234567890:policy/alertlogic-policy to IAM Role: alertlogic-role? (y/n): y
+Successfully attached arn:aws:iam::1234567890:policy/alertlogic-policy to IAM Role: alertlogic-role
+```
+
+Detach policy to existing role:
+```
+python manage_role.py --role-name alertlogic-role --policy-arn arn:aws:iam::1234567890:policy/alertlogic-policy --detach-policy
+Are you sure you want to detach policy arn:aws:iam::1234567890:policy/alertlogic-policy from IAM Role: alertlogic-role? (y/n): y
+Successfully detached arn:aws:iam::1234567890:policy/alertlogic-policy from IAM Role: alertlogic-role
 ```
 
 Contributing
