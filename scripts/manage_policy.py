@@ -6,337 +6,38 @@
 import sys
 import json
 import boto3
+import requests
 import argparse
 from botocore.exceptions import ClientError
 
 # Create IAM client
 iam = boto3.client('iam')
 
-# Minimal Policy Definition
-minimal_policy = {
-    "Statement": [
-        {
-          "Action": [
-            "autoscaling:Describe*",
-            "cloudformation:DescribeStack*",
-            "cloudformation:GetTemplate",
-            "cloudformation:ListStack*",
-            "cloudfront:Get*",
-            "cloudfront:List*",
-            "cloudwatch:Describe*",
-            "config:DeliverConfigSnapshot",
-            "config:Describe*",
-            "config:Get*",
-            "config:ListDiscoveredResources",
-            "cur:DescribeReportDefinitions",
-            "directconnect:Describe*",
-            "dynamodb:ListTables",
-            "ec2:Describe*",
-            "elasticbeanstalk:Describe*",
-            "elasticache:Describe*",
-            "elasticloadbalancing:Describe*",
-            "elasticmapreduce:DescribeJobFlows",
-            "events:Describe*",
-            "events:List*",
-            "glacier:ListVaults",
-            "guardduty:Get*",
-            "guardduty:List*",
-            "kinesis:Describe*",
-            "kinesis:List*",
-            "kms:DescribeKey",
-            "kms:GetKeyPolicy",
-            "kms:GetKeyRotationStatus",
-            "kms:ListAliases",
-            "kms:ListGrants",
-            "kms:ListKeys",
-            "kms:ListKeyPolicies",
-            "kms:ListResourceTags",
-            "lambda:List*",
-            "logs:Describe*",
-            "rds:Describe*",
-            "rds:ListTagsForResource",
-            "redshift:Describe*",
-            "route53:GetHostedZone",
-            "route53:ListHostedZones",
-            "route53:ListResourceRecordSets",
-            "sdb:DomainMetadata",
-            "sdb:ListDomains",
-            "sns:ListSubscriptions",
-            "sns:ListSubscriptionsByTopic",
-            "sns:ListTopics",
-            "sns:GetEndpointAttributes",
-            "sns:GetSubscriptionAttributes",
-            "sns:GetTopicAttributes",
-            "s3:ListAllMyBuckets",
-            "s3:ListBucket",
-            "s3:GetBucketLocation",
-            "s3:GetBucket*",
-            "s3:GetLifecycleConfiguration",
-            "s3:GetObjectAcl",
-            "s3:GetObjectVersionAcl",
-            "tag:GetResources",
-            "tag:GetTagKeys"
-          ],
-          "Effect": "Allow",
-          "Resource": "*",
-          "Sid": "EnabledDiscoveryOfVariousAWSServices"
-        },
-        {
-          "Action": [
-            "iam:ListRoles",
-            "iam:GetRolePolicy",
-            "iam:GetAccountSummary",
-            "iam:GenerateCredentialReport"
-          ],
-          "Effect": "Allow",
-          "Resource": "*",
-          "Sid": "EnableInsightDiscovery"
-        },
-        {
-          "Action": [
-            "cloudtrail:DescribeTrails",
-            "cloudtrail:GetEventSelectors",
-            "cloudtrail:GetTrailStatus",
-            "cloudtrail:ListPublicKeys",
-            "cloudtrail:ListTags",
-            "cloudtrail:LookupEvents"
-          ],
-          "Effect": "Allow",
-          "Resource": "*",
-          "Sid": "LimitedCloudTrail"
-        },
-        {
-          "Action": [
-            "sns:gettopicattributes",
-            "sns:listtopics"
-          ],
-          "Effect": "Allow",
-          "Resource": "arn:aws:sns:*:*:*",
-          "Sid": "LimitedSNSForCloudTrail"
-        },
-        {
-          "Action": [
-            "sqs:GetQueueAttributes",
-            "sqs:ReceiveMessage",
-            "sqs:DeleteMessage",
-            "sqs:GetQueueUrl"
-          ],
-          "Effect": "Allow",
-          "Resource": "arn:aws:sqs:*:*:outcomesbucket*",
-          "Sid": "LimitedSQSForCloudTrail"
-        },
-        {
-          "Action": [
-            "sqs:ListQueues"
-          ],
-          "Effect": "Allow",
-          "Resource": "*",
-          "Sid": "BeAbleToListSQSForCloudTrail"
-        }
-      ],
-      "Version": "2012-10-17"
-    }
-
-# Minimal Policy Definition
-full_policy = {
-    "Statement": [
-        {
-          "Action": [
-            "autoscaling:Describe*",
-            "cloudformation:DescribeStack*",
-            "cloudformation:GetTemplate",
-            "cloudformation:ListStack*",
-            "cloudfront:Get*",
-            "cloudfront:List*",
-            "cloudwatch:Describe*",
-            "config:DeliverConfigSnapshot",
-            "config:Describe*",
-            "config:Get*",
-            "config:ListDiscoveredResources",
-            "cur:DescribeReportDefinitions",
-            "directconnect:Describe*",
-            "dynamodb:ListTables",
-            "ec2:Describe*",
-            "elasticbeanstalk:Describe*",
-            "elasticache:Describe*",
-            "elasticloadbalancing:Describe*",
-            "elasticmapreduce:DescribeJobFlows",
-            "events:Describe*",
-            "events:List*",
-            "glacier:ListVaults",
-            "guardduty:Get*",
-            "guardduty:List*",
-            "kinesis:Describe*",
-            "kinesis:List*",
-            "kms:DescribeKey",
-            "kms:GetKeyPolicy",
-            "kms:GetKeyRotationStatus",
-            "kms:ListAliases",
-            "kms:ListGrants",
-            "kms:ListKeys",
-            "kms:ListKeyPolicies",
-            "kms:ListResourceTags",
-            "lambda:List*",
-            "logs:Describe*",
-            "rds:Describe*",
-            "rds:ListTagsForResource",
-            "redshift:Describe*",
-            "route53:GetHostedZone",
-            "route53:ListHostedZones",
-            "route53:ListResourceRecordSets",
-            "sdb:DomainMetadata",
-            "sdb:ListDomains",
-            "sns:ListSubscriptions",
-            "sns:ListSubscriptionsByTopic",
-            "sns:ListTopics",
-            "sns:GetEndpointAttributes",
-            "sns:GetSubscriptionAttributes",
-            "sns:GetTopicAttributes",
-            "s3:ListAllMyBuckets",
-            "s3:ListBucket",
-            "s3:GetBucketLocation",
-            "s3:GetObject",
-            "s3:GetBucket*",
-            "s3:GetLifecycleConfiguration",
-            "s3:GetObjectAcl",
-            "s3:GetObjectVersionAcl",
-            "tag:GetResources",
-            "tag:GetTagKeys"
-          ],
-          "Effect": "Allow",
-          "Resource": "*",
-          "Sid": "EnabledDiscoveryOfVariousAWSServices"
-        },
-        {
-          "Action": [
-            "iam:Get*",
-            "iam:List*",
-            "iam:ListRoles",
-            "iam:GetRolePolicy",
-            "iam:GetAccountSummary",
-            "iam:GenerateCredentialReport"
-          ],
-          "Effect": "Allow",
-          "Resource": "*",
-          "Sid": "EnableInsightDiscovery"
-        },
-        {
-          "Action": [
-            "cloudtrail:DescribeTrails",
-            "cloudtrail:GetEventSelectors",
-            "cloudtrail:GetTrailStatus",
-            "cloudtrail:ListPublicKeys",
-            "cloudtrail:ListTags",
-            "cloudtrail:LookupEvents",
-            "cloudtrail:StartLogging",
-            "cloudtrail:UpdateTrail"
-          ],
-          "Effect": "Allow",
-          "Resource": "*",
-          "Sid": "EnableCloudTrailIfAccountDoesntHaveCloudTrailsEnabled"
-        },
-        {
-          "Action": [
-            "s3:CreateBucket",
-            "s3:PutBucketPolicy",
-            "s3:DeleteBucket"
-          ],
-          "Effect": "Allow",
-          "Resource": "arn:aws:s3:::outcomesbucket-*",
-          "Sid": "CreateCloudTrailS3BucketIfCloudTrailsAreBeingSetupByAlertLogic"
-        },
-        {
-          "Action": [
-            "sns:CreateTopic",
-            "sns:DeleteTopic"
-          ],
-          "Effect": "Allow",
-          "Resource": "arn:aws:sns:*:*:outcomestopic",
-          "Sid": "CreateCloudTrailsTopicTfOneWasntAlreadySetupForCloudTrails"
-        },
-        {
-          "Action": [
-            "sns:addpermission",
-            "sns:gettopicattributes",
-            "sns:listtopics",
-            "sns:settopicattributes",
-            "sns:subscribe"
-          ],
-          "Effect": "Allow",
-          "Resource": "arn:aws:sns:*:*:*",
-          "Sid": "MakeSureThatCloudTrailsSnsTopicIsSetupCorrectlyForCloudTrailPublishingAndSqsSubsription"
-        },
-        {
-          "Action": [
-            "sqs:CreateQueue",
-            "sqs:DeleteQueue",
-            "sqs:SetQueueAttributes",
-            "sqs:GetQueueAttributes",
-            "sqs:ReceiveMessage",
-            "sqs:DeleteMessage",
-            "sqs:GetQueueUrl"
-          ],
-          "Effect": "Allow",
-          "Resource": "arn:aws:sqs:*:*:outcomesbucket*",
-          "Sid": "CreateAlertLogicSqsQueueToSubscribeToCloudTrailsSnsTopicNotifications"
-        },
-        {
-          "Action": [
-            "sqs:ListQueues"
-          ],
-          "Effect": "Allow",
-          "Resource": "*",
-          "Sid": "BeAbleToListSQSForCloudTrail"
-        },
-        {
-          "Action": [
-            "ec2:GetConsoleOutput",
-            "ec2:GetConsoleScreenShot",
-            "ec2:StartInstances",
-            "ec2:StopInstances",
-            "ec2:TerminateInstances"
-          ],
-          "Condition": {
-            "StringEquals": {
-              "ec2:ResourceTag/AlertLogic": "Security"
-            }
-          },
-          "Effect": "Allow",
-          "Resource": "arn:aws:ec2:*:*:instance/*",
-          "Sid": "EnableAlertLogicApplianceStateManagement"
-        },
-        {
-          "Action": [
-            "autoscaling:UpdateAutoScalingGroup"
-          ],
-          "Condition": {
-            "StringEquals": {
-              "ec2:ResourceTag/AlertLogic": "Security"
-            }
-          },
-          "Effect": "Allow",
-          "Resource": "arn:aws:autoscaling:*:*:autoScalingGroup/*",
-          "Sid": "EnableAlertLogicAutoScalingGroupManagement"
-        }
-      ],
-      "Version": "2012-10-17"
-    }
-
-def create_policy(policy_name, minimal):
+def get_policy(minimal):
     if minimal:
-        response = iam.create_policy(
-            PolicyName=policy_name,
-            PolicyDocument=json.dumps(minimal_policy)
-        )
-        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-                print("Successfully created IAM Policy: {}".format(response['Policy']['Arn']))
+        policy_url = "https://docs.alertlogic.com/pdf-files/minimal.json"
     else:
+        policy_url = "https://docs.alertlogic.com/pdf-files/full.json"
+    try:
+        policy = requests.get(policy_url)
+        if policy.status_code == 200:
+            return json.loads(policy.content)
+        else:
+            print("Error retrieving the policy document from Alert Logic. Please contact support.")
+            sys.exit(1)
+    except Exception as e:
+        print(e)
+
+def create_policy(policy_name, policy):
+    try:
         response = iam.create_policy(
             PolicyName=policy_name,
-            PolicyDocument=json.dumps(full_policy)
+            PolicyDocument=json.dumps(policy)
         )
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
                 print("Successfully created IAM Policy: {}".format(response['Policy']['Arn']))
+    except ClientError as e:
+        print(e)
 
 def list_policy_versions(account, policy_name):
     versions = []
@@ -366,29 +67,18 @@ def delete_policy_version(account, policy_name, version):
     except ClientError as e:
         print(e)
 
-def update_policy(account, policy_name, minimal):
+def update_policy(account, policy_name, policy):
     # Get existing IAM policy
     policy_arn = 'arn:aws:iam::' + account + ':policy/' + policy_name
-    if minimal:
+    try: 
         # Create the new version of the policy and set it as the default version
-        try:
-            response = iam.create_policy_version(PolicyArn=policy_arn,
-                                                 PolicyDocument=json.dumps(minimal_policy),
-                                                 SetAsDefault=True)
-            if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-                print("Successfully updated IAM Policy: {}".format(policy_arn))
-        except ClientError as e:
-            print(e)
-    else:
-        # Create the new version of the policy and set it as the default version
-        try:
-            response = iam.create_policy_version(PolicyArn=policy_arn,
-                                                 PolicyDocument=json.dumps(full_policy),
-                                                 SetAsDefault=True)
-            if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-                print("Successfully updated IAM Policy: {}".format(policy_arn))
-        except ClientError as e:
-            print(e)
+        response = iam.create_policy_version(PolicyArn=policy_arn,
+                                             PolicyDocument=json.dumps(policy),
+                                             SetAsDefault=True)
+        if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+            print("Successfully updated IAM Policy: {}".format(policy_arn))
+    except ClientError as e:
+        print(e)
 
 def yes_or_no(question):
     while "The answer is invalid":
@@ -449,20 +139,22 @@ def main(_argv):
     minimal = False
     if args.minimal:
         minimal = True
-        print("Minimal permission option Allows you to maintain full control over the changes in your deployment, and requires you to perform any necessary actions manually.")
+        print("Minimal permission option allows you to maintain full control over the changes in your deployment, and requires you to perform any necessary actions manually.")
         yes_or_no("Continue applying minimal permissions policy?")
+        policy = get_policy(True)
     else:
         print("Full permission option allows Alert Logic to make all the necessary changes to your AWS account")
         yes_or_no("Continue applying full permissions policy?")
+        policy = get_policy(False)
     policy_name = args.policy_name
     if args.account:
         account = args.account
     if args.create:
         yes_or_no("Are you sure you want to create IAM Policy {}?".format(policy_name))
-        create_policy(policy_name, minimal)
+        create_policy(policy_name, policy)
     if args.update:
         yes_or_no("Are you sure you want to update IAM Policy {}?".format(policy_name))
-        update_policy(account, policy_name, minimal)
+        update_policy(account, policy_name, policy)
     if args.list_versions:
         list_policy_versions(account, policy_name)
     if args.delete_version:
