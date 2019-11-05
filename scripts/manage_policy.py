@@ -162,7 +162,7 @@ def main(_argv):
         else:
             print("Full permission option allows Alert Logic to make all the necessary changes to your AWS account")
             yes_or_no("Continue applying full permissions policy?")
-        policy = get_policy(False)
+            policy = get_policy(False)
         yes_or_no("Are you sure you want to update IAM Policy {}?".format(policy_name))
         update_policy(account, policy_name, policy)
     if args.list_versions:
