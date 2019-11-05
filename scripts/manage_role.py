@@ -77,7 +77,7 @@ def detach_policy(role_name, policy_arn):
 
 def delete_role(role_name):
     try:
-        response = client.delete_role(
+        response = iam.delete_role(
             RoleName=role_name
         )
         if response['ResponseMetadata']['HTTPStatusCode'] == 200:
