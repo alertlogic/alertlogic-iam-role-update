@@ -137,22 +137,32 @@ def main(_argv):
     )
     args = parser.parse_args()
     minimal = False
-    if args.minimal:
-        minimal = True
-        print("Minimal permission option allows you to maintain full control over the changes in your deployment, and requires you to perform any necessary actions manually.")
-        yes_or_no("Continue applying minimal permissions policy?")
-        policy = get_policy(True)
-    else:
-        print("Full permission option allows Alert Logic to make all the necessary changes to your AWS account")
-        yes_or_no("Continue applying full permissions policy?")
-        policy = get_policy(False)
+    
     policy_name = args.policy_name
     if args.account:
         account = args.account
     if args.create:
+        if args.minimal:
+            minimal = True
+            print("Minimal permission option allows you to maintain full control over the changes in your deployment, and requires you to perform any necessary actions manually.")
+            yes_or_no("Continue applying minimal permissions policy?")
+            policy = get_policy(True)
+        else:
+            print("Full permission option allows Alert Logic to make all the necessary changes to your AWS account")
+            yes_or_no("Continue applying full permissions policy?")
+            policy = get_policy(False)
         yes_or_no("Are you sure you want to create IAM Policy {}?".format(policy_name))
         create_policy(policy_name, policy)
     if args.update:
+        if args.minimal:
+            minimal = True
+            print("Minimal permission option allows you to maintain full control over the changes in your deployment, and requires you to perform any necessary actions manually.")
+            yes_or_no("Continue applying minimal permissions policy?")
+            policy = get_policy(True)
+        else:
+            print("Full permission option allows Alert Logic to make all the necessary changes to your AWS account")
+            yes_or_no("Continue applying full permissions policy?")
+        policy = get_policy(False)
         yes_or_no("Are you sure you want to update IAM Policy {}?".format(policy_name))
         update_policy(account, policy_name, policy)
     if args.list_versions:
